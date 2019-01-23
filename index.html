@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja-JP">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Web Chat: Markdown</title>
+    
+    <script src="https://cdn.botframework.com/botframework-webchat/4.2.1-master.14eebbb/webchat-es5.js"></script>
+    <script src="https://unpkg.com/marked@0.6.0/lib/marked.js"></script>
+    <script src="https://unpkg.com/sanitize-html@1.20.0/dist/sanitize-html.min.js"></script>
+    <style>
+      html, body { height: 100% }
+      body { margin: 0 }
+
+      #webchat,
+      #webchat > * {
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="webchat" role="main"></div>
+    <script>
+
+      fetch('https://directline.botframework.com/v3/directline/tokens/generate', { 
+                                  method: 'POST',
+                                  headers:{
+                                    'Authorization': 'Bearer YOUR_SECRET_KEY'
+                                    } 
+                                  })
+        .then(function (res) { return res.json(); })
+        .then(function (json) {
+          const token = json.token;
+          const SANITIZE_HTML_OPTIONS = {
+            allowedAttributes: {
+              a: ['href', 'name', 'target', 'title'],
+              img: ['alt', 'src']
+            },
+            allowedSchemes: ['file', 'http', 'https'],
+            allowedTags: [
+              'a',
+              'b',
+              'blockquote',
+              'br',
+              'caption',
+              'code',
+              'div',
+              'em',
+              'h1',
+              'h2',
+              'h3',
+              'h4',
+              'h5',
+              'h6',
+              'hr',
+              'i',
+              'img',
+              'li',
+              'nl',
+              'ol',
+              'p',
+              'pre',
+              'span',
+              'strike',
+              'strong',
+              'table',
+              'tbody',
+              'td',
+              'tfoot',
+              'th',
+              'thead',
+              'tr',
+              'ul'
+            ]
+          };
+
+          window.WebChat.renderWebChat({
+            directLine: window.WebChat.createDirectLine({ token: token }),
+            renderMarkdown: function (markdown) {
+              const html = window.marked(markdown);
+
+              return sanitizeHtml(html, SANITIZE_HTML_OPTIONS);
+            }
+          }, document.getElementById('webchat'));
+
+          document.querySelector('#webchat > *').focus();
+        })
+    </script>
+  </body>
+</html>
